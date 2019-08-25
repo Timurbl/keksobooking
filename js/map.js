@@ -64,6 +64,7 @@ const renderAuthors = function (windowWidth) {
 const getPins = function(authors) {
   const width = 50;
   const height = 70;
+
   authors.forEach(function(author) {
     const pin = pinTemplate.cloneNode(true);
     pin.style.left = author.location.x - width / 2 + 'px';
@@ -75,11 +76,11 @@ const getPins = function(authors) {
 };
 const getCard = function (author) {
   const card = cardTemplate.cloneNode(true);
+
   card.querySelector('.popup__title').textContent = author.offer.title;
   card.querySelector('.popup__text--address').textContent = author.offer.address;
   card.querySelector('.popup__text--price').textContent = `${author.offer.price} ₽/ночь`;
   card.querySelector('.popup__title').textContent = author.offer.title;
-  console.log(card);
   switch (author.offer.type) {
     case 'flat':
       card.querySelector('.popup__type').textContent = 'Квартира';
@@ -102,29 +103,43 @@ const getCard = function (author) {
     features.querySelector(`.popup__feature--${author.offer.features[i]}`).textContent = author.offer.features[i]
   }
   card.querySelector('.popup__description').textContent = author.offer.description;
+
   const photos = card.querySelector('.popup__photos');
   const photoTemplate = photos.children[0];
-  console.log(photoTemplate);
   photoTemplate.src = author.offer.photos[0];
   for(let i = 1; i < author.offer.photos.length; i++) {
     const photo = photoTemplate.cloneNode(true);
     photo.src = author.offer.photos[i];
     photos.appendChild(photo);
   }
-
   const userImage = card.querySelector('.popup__avatar');
   userImage.src = author.author.avatar;
 
   document.querySelector('.map__filters-container').before(card);
 };
+const makeFormAvailable = function () {
+  const adForm = document.querySelector('.ad-form');
+  adForm.classList.remove('ad-form--disabled');
+  adForm.querySelectorAll('.ad-form__element').forEach(function (element) {
+    element.disabled = false;
+  });
+};
+
+const main = function () {
+  makeFormAvailable();
+
+  mainPin.removeEventListener('mouseup', main);
+  map.classList.remove('map--faded');
+  const authors = renderAuthors(map.offsetWidth);
+
+  getPins(authors);
+  getCard(authors[0]);
+};
 
 const map = document.querySelector('.map');
-map.classList.remove('map--faded');
-
-const authors = renderAuthors(map.offsetWidth);
 const pins = map.querySelector('.map__pins');
 const pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
 const cardTemplate = document.querySelector('#card').content.querySelector('.map__card');
+const mainPin = document.querySelector('.map__pin--main');
 
-getPins(authors);
-getCard(authors[0]);
+mainPin.addEventListener('mouseup', main);
