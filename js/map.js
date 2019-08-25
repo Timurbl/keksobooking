@@ -65,14 +65,17 @@ const getPins = function(authors) {
   const width = 50;
   const height = 70;
 
-  authors.forEach(function(author) {
+  for (let i = 0; i < authors.length; i++) {
     const pin = pinTemplate.cloneNode(true);
-    pin.style.left = author.location.x - width / 2 + 'px';
-    pin.style.top = (author.location.y - height) + 'px';
-    pin.firstChild.src = author.author.avatar;
-    pin.firstChild.alt = author.offer.title;
+    pin.style.left = authors[i].location.x - width / 2 + 'px';
+    pin.style.top = (authors[i].location.y - height) + 'px';
+    pin.firstChild.src = authors[i].author.avatar;
+    pin.firstChild.alt = authors[i].offer.title;
+    pin.setAttribute('data-id', i);
     pins.appendChild(pin);
-  });
+
+    pin.addEventListener('click', pinClickHandler);
+  }
 };
 const getCard = function (author) {
   const card = cardTemplate.cloneNode(true);
@@ -115,6 +118,10 @@ const getCard = function (author) {
   const userImage = card.querySelector('.popup__avatar');
   userImage.src = author.author.avatar;
 
+  const close = card.querySelector('.popup__close');
+  close.addEventListener('click', cardRemoveClickHandler);
+  document.addEventListener('keydown', keydownHandler);
+
   document.querySelector('.map__filters-container').before(card);
 };
 const makeFormAvailable = function () {
@@ -124,16 +131,40 @@ const makeFormAvailable = function () {
     element.disabled = false;
   });
 };
+const removeCard = function (card) {
+  card.querySelector('.popup__close').removeEventListener('click', cardRemoveClickHandler);
+  card.remove();
+};
+
+/*Handlers*/
+const pinClickHandler = function (evt) {
+  evt.preventDefault();
+  const previousCard = map.querySelector('.map__card');
+  if (previousCard) {
+    removeCard(previousCard);
+  }
+
+  getCard(authors[evt.currentTarget.dataset.id]);
+};
+const cardRemoveClickHandler = function (evt) {
+  evt.preventDefault();
+  removeCard(evt.currentTarget.closest('article'))
+};
+const keydownHandler = function (evt) {
+  if (evt.keyCode === 27) {
+    const card = map.querySelector('.map__card');
+    if (card) {
+      card.remove()
+    }
+  }
+};
 
 const main = function () {
   makeFormAvailable();
 
   mainPin.removeEventListener('mouseup', main);
   map.classList.remove('map--faded');
-  const authors = renderAuthors(map.offsetWidth);
-
   getPins(authors);
-  getCard(authors[0]);
 };
 
 const map = document.querySelector('.map');
@@ -141,5 +172,7 @@ const pins = map.querySelector('.map__pins');
 const pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
 const cardTemplate = document.querySelector('#card').content.querySelector('.map__card');
 const mainPin = document.querySelector('.map__pin--main');
+
+const authors = renderAuthors(map.offsetWidth);
 
 mainPin.addEventListener('mouseup', main);
