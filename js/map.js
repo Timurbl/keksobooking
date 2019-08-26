@@ -151,7 +151,7 @@ const cardRemoveClickHandler = function (evt) {
   removeCard(evt.currentTarget.closest('article'))
 };
 const keydownHandler = function (evt) {
-  if (evt.keyCode === 27) {
+  if (evt.key === 'Escape') {
     const card = map.querySelector('.map__card');
     if (card) {
       card.remove()
