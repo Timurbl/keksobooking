@@ -1,3 +1,5 @@
+'use strict';
+
 (function () {
   /*Functions*/
   const renderAuthors = function (windowWidth) {
@@ -104,9 +106,14 @@
     card.querySelector('.popup__text--time').textContent = `Заезд после ${author.offer.checkin}, выезд до ${author.offer.checkout}`;
 
     const features = card.querySelector('.popup__features');
+    features.innerHTML = '';
     for (let i = 0; i < author.offer.features.length; i++) {
-      features.querySelector(`.popup__feature--${author.offer.features[i]}`).textContent = author.offer.features[i]
+      let li = document.createElement('li');
+      li.classList.add('popup__feature');
+      li.classList.add(`popup__feature--${author.offer.features[i]}`);
+      features.appendChild(li);
     }
+
     card.querySelector('.popup__description').textContent = author.offer.description;
 
     const photos = card.querySelector('.popup__photos');
@@ -176,7 +183,15 @@
   const cardTemplate = document.querySelector('#card').content.querySelector('.map__card');
   const mainPin = document.querySelector('.map__pin--main');
 
-  const authors = renderAuthors(map.offsetWidth);
+  let authors;
+  const onError = function (message) {
+    console.error(message);
+  };
+  const onSuccess = function (data) {
+    authors = data;
+  };
+  window.load('https://js.dump.academy/keksobooking/data', onSuccess, onError);
+
 
   mainPin.addEventListener('mouseup', main);
 })();

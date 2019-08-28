@@ -1,3 +1,5 @@
+'use strict';
+
 (function () {
   const getAddress = function () {
     const pinWidth = mainPin.offsetWidth;
